@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Крестики-нолики</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; font-family: Arial, sans-serif; }
+    #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+    #info { position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; }
+    #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); pointer-events: none; }
+    #crosshair::before, #crosshair::after { content: ''; position: absolute; background: white; }
+    #crosshair::before { width: 2px; height: 20px; left: 9px; top: 0; }
+    #crosshair::after { width: 20px; height: 2px; left: 0; top: 9px; }
+    #waiting { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; text-align: center; pointer-events: all; }
+    #waiting.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <div id="info">
+      <div>Комната: <span id="roomCode">...</span></div>
+      <div>Ваш символ: <span id="currentPlayer">-</span></div>
+      <div>Ход: <span id="currentTurn">-</span></div>
+      <div style="margin-top:10px;font-size:12px">Q/Й - камера | Колёсико - зум | ЛКМ - ход</div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="waiting">
+      <div>Ожидание второго игрока...</div>
+      <div style="font-size:12px;margin-top:10px;color:#aaa">Код комнаты: <span id="waitCode">...</span></div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="importmap">
+  { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+  </script>
+  <script type="module" src="src/game.js"></script>
+</body>
+</html>

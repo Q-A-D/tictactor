@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Авторизация</title>
+  <style>
+    body { background: #1a1a2e; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .box { background: rgba(0,0,0,0.8); padding: 40px; border-radius: 10px; width: 300px; text-align: center; }
+    input, button { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+    button { background: #4CAF50; color: white; cursor: pointer; }
+    button:hover { background: #45a049; }
+    .switch { color: #aaa; cursor: pointer; margin-top: 10px; display: block; font-size: 14px; }
+    .error { color: #ff6b6b; margin-bottom: 10px; min-height: 20px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 id="title">Вход</h2>
+    <div class="error" id="error"></div>
+    <input type="text" id="username" placeholder="Логин">
+    <input type="password" id="password" placeholder="Пароль">
+    <button onclick="submit()" id="btn">Войти</button>
+    <span class="switch" onclick="toggleMode()" id="switchText">Нет аккаунта? Регистрация</span>
+  </div>
+
+  <script>
+    let isLogin = true;
+    function toggleMode() {
+      isLogin = !isLogin;
+      document.getElementById('title').textContent = isLogin ? 'Вход' : 'Регистрация';
+      document.getElementById('btn').textContent = isLogin ? 'Войти' : 'Создать аккаунт';
+      document.getElementById('switchText').textContent = isLogin ? 'Нет аккаунта? Регистрация' : 'Есть аккаунт? Войти';
+      document.getElementById('error').textContent = '';
+    }
+
+    async function submit() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+          document.getElementById('error').textContent = data.error;
+          return;
+        }
+        
+        if (isLogin) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', data.user.id);
+          localStorage.setItem('username', data.user.username);
+          window.location.href = '/dashboard.html';
+        } else {
+          document.getElementById('error').style.color = '#4ecdc4';
+          document.getElementById('error').textContent = 'Аккаунт создан! Теперь войдите.';
+          setTimeout(toggleMode, 1500);
+        }
+      } catch (e) {
+        document.getElementById('error').textContent = 'Ошибка соединения';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Панель управления</title>
+  <style>
+    body { background: #1a1a2e; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .box { background: rgba(0,0,0,0.8); padding: 40px; border-radius: 10px; width: 350px; text-align: center; }
+    h2 { margin-top: 0; }
+    .stats { display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; }
+    .stat-item div:first-child { font-size: 24px; font-weight: bold; color: #4ecdc4; }
+    .stat-item div:last-child { font-size: 12px; color: #aaa; margin-top: 5px; }
+    input, button { width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+    button { background: #4CAF50; color: white; cursor: pointer; }
+    button.secondary { background: #555; }
+    button:hover { opacity: 0.9; }
+    .logout { color: #ff6b6b; cursor: pointer; margin-top: 15px; display: inline-block; font-size: 14px; }
+    .error { color: #ff6b6b; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 id="welcome">Загрузка...</h2>
+    <div class="stats">
+      <div class="stat-item"><div id="wins">-</div><div>Победы</div></div>
+      <div class="stat-item"><div id="losses">-</div><div>Поражения</div></div>
+    </div>
+    
+    <button onclick="play()">🎮 Играть</button>
+    <input type="text" id="roomCode" placeholder="Код комнаты" maxlength="6" style="text-transform: uppercase;">
+    <button class="secondary" onclick="join()">Присоединиться</button>
+    <div class="error" id="error"></div>
+    
+    <span class="logout" onclick="logout()">Выйти из аккаунта</span>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) { window.location.href = '/auth.html'; }
+
+    async function loadProfile() {
+      try {
+        const res = await fetch('/api/auth/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) { logout(); return; }
+        const data = await res.json();
+        document.getElementById('welcome').textContent = `Привет, ${data.username}!`;
+        document.getElementById('wins').textContent = data.wins;
+        document.getElementById('losses').textContent = data.losses;
+      } catch (e) {
+        document.getElementById('error').textContent = 'Ошибка загрузки профиля';
+      }
+    }
+
+    function play() {
+      window.location.href = `/index.html?mode=create&token=${token}&username=${localStorage.getItem('username')}`;
+    }
+
+    function join() {
+      const code = document.getElementById('roomCode').value.toUpperCase();
+      if (code.length < 4) {
+        document.getElementById('error').textContent = 'Введите код комнаты';
+        return;
+      }
+      window.location.href = `/index.html?mode=join&code=${code}&token=${token}&username=${localStorage.getItem('username')}`;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/auth.html';
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
