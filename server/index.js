@@ -11,7 +11,14 @@ app.use(express.json());
 app.use(express.static('client'));
 
 const server = http.createServer(app);
-const io = socketIo(server, { cors: { origin: '*' } });
+
+// Настройка Socket.IO с правильным CORS для Render
+const io = socketIo(server, { 
+  cors: { 
+    origin: '*', 
+    methods: ['GET', 'POST']
+  } 
+});
 
 // Подключение к MongoDB с принудительной синхронизацией индексов
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/tictactoe')
