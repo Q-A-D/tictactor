@@ -79,7 +79,11 @@ function init() {
     }
   });
 
-  socket = io();
+  // ИСПРАВЛЕНИЕ ДЛЯ RENDER.COM: Принудительный polling
+  socket = io({
+    transports: ['polling'],
+    upgrade: false
+  });
 
   socket.on('gameStart', (data) => {
     players = data.players;
